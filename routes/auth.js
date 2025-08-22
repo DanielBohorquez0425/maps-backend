@@ -10,10 +10,12 @@ const router = Router();
 // Registro
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, last_name, email, password } = req.body;
 
     // verificar si ya existe
-    const [rows] = await pool.query("SELECT id FROM users WHERE email = ?", [email]);
+    const [rows] = await pool.query("SELECT id FROM users WHERE email = ?", [
+      email,
+    ]);
     if (rows.length > 0) {
       return res.status(400).json({ message: "El usuario ya existe" });
     }
@@ -23,8 +25,8 @@ router.post("/register", async (req, res) => {
 
     // insertar
     await pool.query(
-      "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-      [name, email, hashedPassword]
+      "INSERT INTO users (name, last_name, email, password_hash) VALUES (?, ?, ?, ?)",
+      [name, last_name, email, hashedPassword]
     );
 
     res.json({ message: "Usuario registrado con éxito" });
@@ -39,11 +41,15 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+    // verificar si existe
+    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
     if (rows.length === 0) {
       return res.status(400).json({ message: "Usuario no encontrado" });
     }
 
+    // verificar password
     const user = rows[0];
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
@@ -51,9 +57,13 @@ router.post("/login", async (req, res) => {
     }
 
     // generar token
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     res.json({ token });
   } catch (error) {
