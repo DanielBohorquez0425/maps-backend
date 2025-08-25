@@ -9,7 +9,10 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: "https://maps-front-flax.vercel.app",
+  origin: [
+    'https://maps-front-flax.vercel.app',
+    'http://localhost:4321',
+  ],
   credentials: true,
 }));
 app.use("/auth", authRoutes);
