@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js";
 import cors from "cors";
 
 dotenv.config();
+const PORT = process.env.PORT || 4000;
 const app = express();
 
 app.use(express.json());
@@ -13,6 +14,6 @@ app.use(cors({
 }));
 app.use("/auth", authRoutes);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
